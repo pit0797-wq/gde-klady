@@ -1,0 +1,20 @@
+{
+  "app": "kopar-catalog-edit",
+  "ts": "2026-11-21T20:55:26.365Z",
+  "note": "Положите этот файл в корень репозитория рядом с index.html как catalog.json",
+  "edits": {
+    "rus9#1": {
+      "img": "https://static.auction.ru/offer_images/rd48/2023/01/29/04/big/A/AZ8F6dEa8cS/srebrenik_vladimira_svjatoslavicha_980_1015_gg_licevaja_kn_vladimir_i_oborotnaja_trezubec.jpg"
+    },
+    "rus9#2": {
+      "img": "https://i.pinimg.com/736x/d1/a7/8b/d1a78beba8b1733e1ec2fe8cc9a82ebe.jpg"
+    },
+    "rus9#3": {
+      "img": "https://static.anumis.ru/global/images/photos/0283/huge/2597789.jpg"
+    }
+  },
+  "customGroups": [],
+  "customCoins": [],
+  "antiqueGroups": [],
+  "antiqueItems": []
+}
