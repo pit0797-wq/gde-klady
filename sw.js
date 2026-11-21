@@ -3,7 +3,7 @@
 // Оффлайн доступны: само приложение, точки, треки, каталог и те места
 // карты, которые уже открывали в этой зоне.
 
-const SHELL = "kopar-shell-v11";
+const SHELL = "kopar-shell-v12";
 const TILES = "kopar-tiles-v3";
 
 const SHELL_ASSETS = [
