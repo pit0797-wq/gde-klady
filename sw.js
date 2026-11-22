@@ -3,7 +3,7 @@
 // Оффлайн доступны: само приложение, точки, треки, каталог и те места
 // карты, которые уже открывали в этой зоне.
 
-const SHELL = "kopar-shell-v14";
+const SHELL = "kopar-shell-v15";
 const TILES = "kopar-tiles-v3";
 
 const SHELL_ASSETS = [
@@ -40,6 +40,9 @@ self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   let url;
   try { url = new URL(e.request.url); } catch (err) { return; }
+
+  // GitHub API — мимо воркера: никакой кэш-оболочки, только сеть
+  if (url.hostname === "api.github.com") return;
 
   // Тайлы карт: кэш первым — сеть только при промахе
   const isTile =
