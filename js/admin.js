@@ -806,6 +806,17 @@ function ghGuessRepo() {
   } catch (e) {}
   return "";
 }
+function ghPermissionHint() {
+  return "GitHub отказал в записи (403: Resource not accessible by personal access token).\n\n" +
+    "Токен есть, но у него нет права ПИСАТЬ в этот репозиторий. Как исправить:\n" +
+    "1. github.com → аватар → Settings → Developer settings → Personal access tokens → Fine-grained tokens.\n" +
+    "2. Открой свой токен (или создай новый: Generate new token).\n" +
+    "3. Repository access: «Only select repositories» → выбери gde-klady (пустой список = нет доступа никуда).\n" +
+    "4. Permissions → Repository permissions → Contents → «Read and write» (не «Read-only»!).\n" +
+    "5. Если токен Classic — нужна галочка scope «repo».\n" +
+    "6. Проверь, что срок действия не истёк.\n\n" +
+    "Потом введи токен заново: админка → «🔑 Токен».";
+}
 function ghHeaders(token) {
   return {
     Authorization: "Bearer " + token,
@@ -848,7 +859,8 @@ window.__adminGHPush = async function () {
       localStorage.removeItem("ghToken");
       alert("Токен не принят (401). Нажми «🔑 Токен» и введи свежий.");
       return;
-    } else if (gr.status !== 404) throw new Error("GitHub ответил " + gr.status);
+    } else if (gr.status === 403) { alert(ghPermissionHint()); return; }
+    else if (gr.status !== 404) throw new Error("GitHub ответил " + gr.status);
     const res = await fetch(api, {
       method: "PUT",
       headers: ghHeaders(token),
@@ -864,6 +876,8 @@ window.__adminGHPush = async function () {
     } else if (res.status === 401) {
       localStorage.removeItem("ghToken");
       alert("Токен не принят (401). Нажми «🔑 Токен» и введи свежий.");
+    } else if (res.status === 403) {
+      alert(ghPermissionHint());
     } else {
       const j = await res.json().catch(() => ({}));
       alert("GitHub не принял файл (" + res.status + (j && j.message ? ": " + j.message : "") + ")");

@@ -513,3 +513,13 @@ js/{layers,app,spots,import,search,menu,coins,admin}.js
   (раньше открывались только из шапки эпохи).
 - Данные с GitHub больше не помечаются как «неопубликованные».
 - Версия кэша SW: kopar-shell-v13.
+
+
+## Подсказка при 403 от GitHub (22.11.2026)
+
+- Если GitHub отвечает 403 «Resource not accessible by personal
+  access token», приложение показывает пошаговую подсказку:
+  как создать токен с правом Contents: Read and write и выбрать
+  репозиторий. Токен при 403 не стирается — он рабочий, просто
+  без права записи.
+- Версия кэша SW: kopar-shell-v14.
