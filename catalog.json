@@ -1,0 +1,54 @@
+{
+  "app": "kopar-catalog-edit",
+  "ts": "2026-11-22T21:47:39.574Z",
+  "version": "2.4",
+  "edits": {
+    "rus9#1": {
+      "img": "https://static.auction.ru/offer_images/rd48/2023/01/29/04/big/A/AZ8F6dEa8cS/srebrenik_vladimira_svjatoslavicha_980_1015_gg_licevaja_kn_vladimir_i_oborotnaja_trezubec.jpg"
+    },
+    "rus9#2": {
+      "img": "https://i.pinimg.com/736x/d1/a7/8b/d1a78beba8b1733e1ec2fe8cc9a82ebe.jpg"
+    },
+    "rus9#3": {
+      "img": "https://static.anumis.ru/global/images/photos/0283/huge/2597789.jpg"
+    },
+    "shuya#4": {
+      "img": "https://avatars.mds.yandex.net/i?id=30701f22831f259abd3ae19b67f3cfbf_l-5452187-images-thumbs&n=13"
+    },
+    "shuya#5": {
+      "img": "https://coins.su/forum/uploads/2018/05/17/kopeika_mihaila_romanova_kg_415.jpg.2b24a319ee3f63d6fc706ada1f5f75af.jpg"
+    },
+    "petr1#13": {
+      "img": "https://avatars.mds.yandex.net/i?id=98863072cef3274ccd08633893068146_l-5850447-images-thumbs&n=13"
+    }
+  },
+  "customGroups": [],
+  "customCoins": [],
+  "antiqueGroups": [
+    {
+      "id": "ep-mwqxxowi-k88h",
+      "name": "Килеконечные кресты",
+      "short": "XVII - XX века",
+      "img": "https://mednolit.ru/_ph/1193/2/601742826.jpg?1795297730"
+    }
+  ],
+  "antiqueItems": [
+    {
+      "id": "it-mwqxzwoq-uh9y",
+      "g": "ep-mwqxxowi-k88h",
+      "n": "КРЕСТ КИЛЕКОНЕЧНЫЙ С ИЗОБРАЖЕНИЕМ ПРЯМОУГОЛЬНОКОНЕЧНОГО КРЕСТА",
+      "e": "Датировка: 16 — 17 век",
+      "t": "",
+      "o": "",
+      "m": "",
+      "r": 8,
+      "st": "",
+      "sz": "Размер: 50 х 23 мм",
+      "w": "",
+      "d": "Что это за предмет. Нательный крест-«тельник» медного сплава (литьё). «Килеконечный» (килевидный) — значит, лопасти креста завершаются килевидными, стреловидными навершиями, похожими на киль корабля или крышу-«килевик» древнерусского зодчества. Такая форма — характерный признак русских нательных крестов позднего Средневековья: типы с килевидной нижней лопастью и расширяющимися/прямыми боковыми лопастями появляются в XIV–XV веках и массово тиражируются вплоть до XIX столетия",
+      "img": [
+        "https://mednolit.ru/_ph/1193/2/601742826.jpg?1795298007"
+      ]
+    }
+  ]
+}
