@@ -1,0 +1,1146 @@
+:root {
+  --accent: #1f6feb;
+  --gold: #c9a227;
+  --navy: #0f172a;
+  --bg-dark: #1a253a;
+  --bg-texture: #0b101e;
+  --card: #232e43;
+  --line: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  background: var(--bg-texture);
+}
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   ФОНОВЫЕ СЛОИ: шум, текстура, параллакс, частицы, свечение
+   ============================================================ */
+
+#bg-noise {
+  position: fixed; inset: 0; z-index: -1;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 20px 20px, 25px 25px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+#bg-texture {
+  position: fixed; inset: 0; z-index: 0;
+  background-image: radial-gradient(circle at 50% 50%, rgba(11,16,30,0.85) 0%, transparent 70%);
+  background-color: var(--bg-texture);
+  pointer-events: none;
+}
+#bg-parallax {
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(circle at 50% 50%, #0b101e 0%, transparent 80%);
+  opacity: 0.35;
+  pointer-events: none;
+  will-change: transform;
+}
+#bg-particles {
+  position: fixed; inset: 0; z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.particle {
+  position: absolute; top: 0; left: 0; width: 4px; height: 4px;
+  background: rgba(203, 162, 39, 0.12);
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: float calc(10s + var(--rand-dur, 4s)) infinite linear;
+  animation-delay: var(--rand-delay, -4s);
+}
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  50%  { transform: translate(-12px, 24px) scale(0.9); opacity: 0.3; }
+  100% { transform: translate(8px, 40px) scale(1.1); opacity: 0.5; }
+}
+#bg-glow {
+  position: fixed; inset: 0; z-index: 2;
+  background: radial-gradient(circle at center, rgba(31, 111, 235, 0.08) 0%, transparent 65%);
+  pointer-events: none;
+  opacity: 0.7;
+}
+@keyframes pulse-glow {
+  0%   { box-shadow: 0 0 8px rgba(31, 111, 235, 0.12); opacity: 0.7; }
+  50%  { box-shadow: 0 0 24px rgba(31, 111, 235, 0.22); opacity: 0.85; }
+  100% { box-shadow: 0 0 12px rgba(31, 111, 235, 0.14); opacity: 0.75; }
+}
+#bg-glow-pulse {
+  position: fixed; inset: 0; z-index: 2;
+  background: radial-gradient(circle at center, rgba(15,23,42,0.92) 0%, transparent 75%);
+  pointer-events: none;
+  animation: pulse-glow 14s infinite ease-in-out;
+  opacity: 0.65;
+}
+
+/* ============================================================
+   КАРТА
+   ============================================================ */
+
+#map {
+  position: relative; z-index: 5;
+  width: 100%; height: 100%;
+  background: #111a2d;
+}
+
+/* ============================================================
+   ВЕРХНЯЯ ПАНЕЛЬ
+   ============================================================ */
+
+#topbar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 1400;
+  height: 46px; display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(11,16,30,0.98));
+  color: #fff; padding: 0 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
+  backdrop-filter: blur(8px);
+}
+#btn-menu {
+  width: 38px; height: 38px; border: none; border-radius: 10px;
+  background: rgba(255,255,255,.1); color: #fff; font-size: 18px;
+}
+#app-title { font-size: 16px; font-weight: 600; letter-spacing: .3px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+/* ============================================================
+   БОКОВОЕ МЕНЮ
+   ============================================================ */
+
+#menu-drawer {
+  position: absolute; top: 0; left: 0; bottom: 0; z-index: 1600;
+  width: 268px; max-width: 82vw;
+  background: #232e43;
+  border-right: 1px solid #334155;
+  box-shadow: 6px 0 20px rgba(0,0,0,.45);
+  padding-top: 54px; overflow-y: auto;
+}
+.menu-item {
+  padding: 15px 20px; font-size: 15px; color: var(--text-main); cursor: pointer;
+  border-bottom: 1px solid #2b364d;
+  transition: background .2s;
+}
+.menu-item:hover { background: rgba(255,255,255,.08); }
+.menu-item:active { background: rgba(255,255,255,.12); }
+.menu-sep { height: 6px; background: #2b364d; margin: 4px 10px; }
+#menu-backdrop {
+  position: absolute; inset: 0; z-index: 1550;
+  background: rgba(0,0,0,.55);
+}
+
+/* ============================================================
+   ПОЛНОЭКРАННЫЕ СТРАНИЦЫ
+   ============================================================ */
+
+.page {
+  position: absolute; inset: 0; z-index: 1500;
+  background: linear-gradient(180deg, var(--bg-dark) 0%, #16203a 60%, #121a2e 100%);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.page-head {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(15,23,42,.96);
+  color: #fff; padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  backdrop-filter: blur(6px);
+}
+.page-head h3 { margin: 0; font-size: 17px; flex: 1; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+.btn-back {
+  width: 38px; height: 38px; border: none; border-radius: 10px;
+  background: rgba(255,255,255,.1); color: #fff; font-size: 18px;
+}
+.crumb {
+  margin: 10px 10px 0; font-size: 13px; color: var(--accent);
+  cursor: pointer; font-weight: bold;
+}
+
+/* ============================================================
+   СТАТИСТИКА И ФИЛЬТРЫ
+   ============================================================ */
+
+#finds-stats, #finds-filter, #coin-search { margin: 10px 10px 0; }
+#finds-stats {
+  font-size: 13px; color: var(--text-muted);
+  background: rgba(35,46,67,.8); border-radius: 10px; padding: 8px 12px;
+  border: 1px solid #334155; box-shadow: inset 0 0 8px rgba(0,0,0,.3);
+}
+#finds-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 7px 14px; border-radius: 18px; border: none;
+  background: rgba(40,52,70,.6); font-size: 13px; color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.chip.active {
+  background: var(--gold); color: #0f172a; font-weight: 700;
+  box-shadow: 0 4px 12px rgba(203, 162, 39, .45);
+  transform: scale(1.02);
+}
+
+/* ============================================================
+   СПИСКИ (НАХОДКИ И МОНЕТЫ)
+   ============================================================ */
+
+#finds-list, #coins-list {
+  margin: 10px; padding: 0; list-style: none; flex: 1; overflow-y: auto;
+  padding-bottom: 20px;
+}
+#finds-list li, #coins-list li {
+  background: linear-gradient(135deg, #232e43 0%, #1a2336 100%);
+  border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 10px; cursor: pointer; font-size: 14px; color: var(--text-main);
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  border-left: 3px solid transparent;
+  transition: transform .1s, box-shadow .2s;
+}
+#finds-list li:hover, #coins-list li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.5), 0 0 12px rgba(31, 111, 235, .2);
+}
+#finds-list li:active, #coins-list li:active { transform: scale(.98); }
+#finds-list li small, #coins-list li small { color: var(--text-muted); display: block; margin-top: 3px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.li-del { float: right; color: #ef4444; font-size: 14px; padding: 2px 6px; opacity: .7; }
+.li-del:hover { opacity: 1; }
+.page-actions {
+  position: sticky; bottom: 0;
+  padding: 10px; margin: 0; background: rgba(35,46,67,.9);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.4);
+}
+
+/* Список монет: превью-фото слева, текст справа */
+#coins-list li { display: flex; align-items: center; gap: 12px; min-height: 76px; }
+.coin-body { flex: 1; min-width: 0; }
+.coin-body b {
+  display: block; font-size: 14px; font-weight: 600; color: #f8fafc;
+  line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.coin-body .rare-0, .coin-body .rare-1,
+.coin-body .rare-2, .coin-body .rare-3 { font-size: 11px; font-weight: 600; }
+.coin-body small {
+  color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.coin-body .cd-snip {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: #8fa0bd; font-size: 11.5px; line-height: 1.35;
+  margin-top: 3px;
+}
+.coin-thumb {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: #5c6b85;
+  background: #111a2d; border: 1px solid #334155;
+  overflow: hidden;
+}
+
+/* ============================================================
+   ВИТРИНА ЭПОХ В КАТАЛОГЕ
+   ============================================================ */
+
+.group-card {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(45,58,82,.85); border-radius: 14px; padding: 10px 14px;
+  margin-bottom: 10px; cursor: pointer;
+  border-left: 6px solid var(--gold);
+  box-shadow: 0 4px 18px rgba(0,0,0,.45), inset 0 0 16px rgba(11,16,30,.6);
+  transition: transform .15s, background .2s, box-shadow .2s;
+}
+.group-card:hover {
+  transform: translateX(6px) scale(1.01);
+  background: rgba(50,65,90,.95);
+  box-shadow: 0 6px 24px rgba(203, 162, 39, .18), inset 0 0 20px rgba(31, 111, 235, .12);
+}
+.group-card:active { transform: scale(.99); }
+
+.gport {
+  width: 56px; height: 56px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  background: #111a2d; color: #5c6b85; text-align: center; line-height: 56px;
+  font-size: 24px; overflow: hidden;
+  border: 2px solid #1f2a44;
+  box-shadow: inset 0 0 10px rgba(0,0,0,.5);
+  position: relative;
+}
+.gport img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
+}
+.gport::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, transparent 0%, rgba(0,0,0,.15) 60%, rgba(0,0,0,.3) 100%);
+  pointer-events: none;
+}
+.ginfo { flex: 1; }
+.ginfo b { font-size: 14px; color: #f8fafc; font-weight: 600; }
+.ginfo small { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+.gcount {
+  background: rgba(15,23,42,.8); color: var(--gold); border-radius: 12px;
+  font-size: 12px; padding: 4px 10px; flex-shrink: 0; border: 1px solid #334155;
+}
+.group-header {
+  background: rgba(15,23,42,.9); color: #f1f5f9; border-radius: 10px; padding: 9px 12px;
+  font-size: 13px; display: flex; justify-content: space-between;
+  align-items: center; cursor: default; margin: 12px 0 4px; border: 1px solid #334155;
+}
+.gh-link { color: var(--accent); text-decoration: none; font-size: 12px; white-space: nowrap; }
+
+/* ============================================================
+   КАТАЛОГ МОНЕТ: ПОИСК И КАРТОЧКА
+   ============================================================ */
+
+#coin-search {
+  width: calc(100% - 20px); box-sizing: border-box; padding: 11px 14px;
+  border: 1px solid #334155; border-radius: 12px; font-size: 14px; color: #f8fafc;
+  background: rgba(15,23,42,.6); box-shadow: inset 0 2px 6px rgba(0,0,0,.3);
+}
+#coin-search:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, .2);
+  background: rgba(15,23,42,.9);
+}
+
+#coin-detail {
+  position: absolute; inset: 0; z-index: 10;
+  background: rgba(23,33,53,.94); backdrop-filter: blur(10px);
+  overflow-y: auto; padding: 62px 18px 24px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+#coin-detail h3 { margin-top: 0; color: #f8fafc; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+#coin-detail table {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+  background: rgba(35,46,67,.9); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4); border: 1px solid #334155;
+}
+#coin-detail td { padding: 10px 12px; border-bottom: 1px solid rgba(51, 65, 85, .4); vertical-align: top; color: #e2e8f0; }
+#coin-detail td:first-child {
+  color: var(--text-muted); white-space: nowrap; width: 110px;
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+}
+#coin-detail table tr:last-child td { border: none; }
+
+.cd-close {
+  position: absolute; top: 10px; right: 12px; z-index: 12;
+  width: 40px; height: 40px; border: none; border-radius: 50%;
+  background: rgba(15,23,42,.95); color: #f8fafc; font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4); border: 1px solid #334155;
+}
+
+/* Метки редкости со свечением */
+.rare-0 { color: #4ade80; font-weight: 700; text-shadow: 0 0 4px rgba(74, 222, 128, .4); }
+.rare-1 { color: #9ca3af; font-weight: 700; text-shadow: 0 0 3px rgba(156, 163, 175, .3); }
+.rare-2 { color: #f97316; font-weight: 700; text-shadow: 0 0 5px rgba(249, 115, 22, .5); }
+.rare-3 { color: #dc2626; font-weight: 700; text-shadow: 0 0 6px rgba(220, 38, 38, .5); }
+
+/* ===== Шапка карточки: бейдж металла, титул, годы ===== */
+.cd-metal-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 14px;
+  background: rgba(203,162,39,.15); border: 1px solid var(--gold);
+  color: var(--gold); font-size: 12px; font-weight: 600;
+  margin-bottom: 6px;
+}
+.cd-title {
+  margin: 0; font-size: 20px; color: #f8fafc; font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+.cd-sub {
+  color: var(--gold); font-size: 14px; font-weight: 600;
+  letter-spacing: 1px; margin-bottom: 12px;
+}
+
+/* ===== Галерея фото монет: контейнер-лента ===== */
+.cd-imgs {
+  display: flex; gap: 10px; overflow-x: auto; padding: 10px 0 6px;
+  margin-bottom: 10px; font-size: 13px; color: var(--text-muted);
+}
+.cd-caption {
+  width: 100%; font-size: 11px; color: var(--text-muted);
+  text-align: right; padding-top: 4px;
+}
+.cd-noimg {
+  width: 100%; text-align: center; padding: 18px 8px;
+  background: rgba(35,46,67,.6); border: 1px dashed var(--line); border-radius: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== Описание: блок с золотой рамкой и буквицей ===== */
+.cd-desc {
+  margin-top: 14px; position: relative;
+  background: rgba(15,23,42,.55); border-radius: 14px;
+  padding: 16px 18px; border: 1px solid rgba(203,162,39,.25);
+  box-shadow: inset 0 0 14px rgba(0,0,0,.35);
+}
+.cd-desc p {
+  margin: 0; font-size: 14px; line-height: 1.65; color: #e2e8f0;
+}
+.cd-desc::first-letter {
+  font-size: 30px; color: var(--gold); font-weight: 700;
+  float: left; line-height: 1; margin: 2px 8px 0 0;
+}
+
+/* ============================================================
+   ЗАГРУЗКА ФОТО: шиммер, плавное проявление, зум
+   ============================================================ */
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* Скелетон-блеск на превью, пока фото едет */
+.coin-thumb { position: relative; }
+.coin-thumb.skel::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,.22), transparent);
+  animation: shimmer 1.5s infinite;
+}
+.coin-thumb.noimg { opacity: .55; }
+
+/* Плавное проявление превью */
+.coin-thumb img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+  background: #fff; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4));
+  opacity: 0; transition: opacity .35s ease;
+}
+.coin-thumb.loaded img { opacity: 1; }
+
+/* Фото в карточке: рамка-золото, проявление с масштабом */
+.cd-photo { position: relative; flex-shrink: 0; }
+.cd-photo.skel {
+  width: 220px; height: 220px; border-radius: 10px;
+  background: rgba(35,46,67,.7); border: 1px solid var(--line);
+}
+.cd-photo.skel::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,.18), transparent);
+  animation: shimmer 1.4s infinite;
+}
+.cd-img {
+  height: 200px; width: auto; max-width: 80vw;
+  object-fit: contain; border-radius: 10px;
+  border: 2px solid var(--gold); background: #fff;
+  box-shadow: 0 3px 12px rgba(0,0,0,.5);
+  opacity: 0; transform: scale(.97);
+  transition: opacity .4s ease, transform .4s ease;
+  cursor: zoom-in;
+}
+.cd-img.show { opacity: 1; transform: scale(1); }
+
+/* ============================================================
+   ПРОСМОТР ФОТО НА ВЕСЬ ЭКРАН (исправлено закрытие)
+   ============================================================ */
+
+#lightbox {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(5,8,15,.93); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: zoom-out;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+#lightbox.show {
+  opacity: 1; visibility: visible; pointer-events: auto;
+}
+#lightbox img {
+  max-width: 94vw; max-height: 88vh; object-fit: contain;
+  border-radius: 12px; border: 2px solid var(--gold);
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+}
+.lb-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 44px; height: 44px; border: none; border-radius: 50%;
+  background: rgba(15,23,42,.95); color: #f8fafc; font-size: 18px;
+  border: 1px solid #334155; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+/* Блокируем скролл карточки, пока открыт просмотр */
+html.lightbox-open #coin-detail { overflow: hidden; }
+
+/* ============================================================
+   ПАНЕЛИ НА КАРТЕ
+   ============================================================ */
+
+.panel {
+  position: absolute; top: 56px; left: 10px; z-index: 1200;
+  background: var(--card); border-radius: 12px; padding: 10px 14px;
+  max-width: 78vw; max-height: 62vh; overflow-y: auto;
+  box-shadow: 0 4px 14px rgba(0,0,0,.45); font-size: 14px; color: var(--text-main);
+}
+.panel h3 { margin: 8px 0 4px; font-size: 14px; color: #f8fafc; }
+.panel label { display: block; padding: 3px 0; cursor: pointer; }
+.dead { color: #64748b; }
+.dead a { color: var(--accent); }
+
+/* ============================================================
+   КНОПКИ
+   ============================================================ */
+
+#toolbar {
+  position: absolute; bottom: 20px; right: 12px; z-index: 1200;
+  display: flex; flex-direction: column; gap: 8px;
+}
+#toolbar button {
+  width: 50px; height: 50px; border-radius: 50%; border: none;
+  background: linear-gradient(180deg, #2b7bff, var(--accent)); color: #fff;
+  font-size: 20px; box-shadow: 0 3px 8px rgba(0,0,0,.5);
+  transition: transform .1s;
+}
+#toolbar button:active { transform: scale(.92); }
+#toolbar button.rec {
+  background: linear-gradient(180deg, #e74c3c, #c0392b);
+  animation: blink 1s infinite;
+}
+@keyframes blink { 50% { opacity: .45; } }
+
+/* ===== Ползунок прозрачности ===== */
+#opacity-box {
+  position: absolute; bottom: 84px; right: 12px; z-index: 1200;
+  background: var(--card); border-radius: 12px; padding: 10px 14px;
+  font-size: 12px; color: var(--text-main);
+  box-shadow: 0 3px 10px rgba(0,0,0,.45);
+}
+#opacity-box input { width: 140px; }
+
+.row { display: flex; gap: 6px; margin-top: 10px; }
+.row button {
+  flex: 1; padding: 9px; border: none; border-radius: 8px;
+  color: #fff; background: linear-gradient(180deg, #2b7bff, var(--accent));
+  font-size: 13px;
+}
+.btn-grey { background: linear-gradient(180deg, #64748b, #475569) !important; }
+
+/* ============================================================
+   ПОИСК ПО АДРЕСУ
+   ============================================================ */
+
+#search-bar {
+  position: absolute; top: 54px; right: 10px; z-index: 1200;
+  display: flex; gap: 4px;
+}
+#search-input {
+  width: 46vw; max-width: 320px; padding: 9px 12px;
+  border: none; border-radius: 10px; font-size: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.45);
+}
+#btn-search {
+  width: 42px; border: none; border-radius: 10px;
+  background: linear-gradient(180deg, #2b7bff, var(--accent));
+  color: #fff; font-size: 16px;
+}
+#search-results {
+  position: absolute; top: 100px; right: 10px; z-index: 1200;
+  background: var(--card); border-radius: 10px; max-width: 75vw;
+  max-height: 40vh; overflow-y: auto; color: var(--text-main);
+  box-shadow: 0 4px 14px rgba(0,0,0,.45);
+}
+.sr { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #2b364d; cursor: pointer; }
+.sr:active, .sr:hover { background: rgba(31, 111, 235, .15); }
+
+/* ============================================================
+   МОДАЛКА ТОЧКИ
+   ============================================================ */
+
+#spot-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-card {
+  background: var(--card); border-radius: 16px; padding: 18px;
+  width: 86vw; max-width: 340px; font-size: 14px; color: var(--text-main);
+  box-shadow: 0 10px 40px rgba(0,0,0,.5); border: 1px solid #334155;
+}
+.modal-card h3 { margin: 0 0 10px; color: #f8fafc; }
+.modal-card label { display: block; margin: 8px 0 2px; font-size: 12px; color: var(--text-muted); }
+.modal-card select, .modal-card input {
+  width: 100%; box-sizing: border-box; padding: 9px;
+  border: 1px solid #475569; border-radius: 8px; font-size: 14px;
+  background: #1a2336; color: #f8fafc;
+}
+
+/* ============================================================
+   ПРОЧЕЕ
+   ============================================================ */
+
+#err-banner {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 9999; display: none;
+  background: #c0392b; color: #fff; font-size: 12px; padding: 8px; white-space: pre-wrap;
+}
+
+/* На устройствах с уменьшенной анимацией — без движения */
+@media (prefers-reduced-motion: reduce) {
+  #bg-parallax, #bg-glow-pulse, .particle,
+  .coin-thumb.skel::after, .cd-photo.skel::after { animation: none; opacity: 0.5; }
+  .group-card, #finds-list li, #coins-list li { transform: none; }
+}
+
+/* ============================================================
+   АДМИН-РЕЖИМ В КАТАЛОГЕ МОНЕТ
+   ============================================================ */
+
+#admin-toggle {
+  width: 38px; height: 38px; border: none; border-radius: 10px;
+  background: rgba(255,255,255,.1); color: #fff; font-size: 16px;
+  flex-shrink: 0;
+}
+#admin-toggle.on {
+  background: linear-gradient(180deg, #2b7bff, var(--accent));
+  box-shadow: 0 0 10px rgba(31,111,235,.5);
+}
+
+#admin-bar {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 10px;
+  position: sticky; bottom: 0; background: rgba(35,46,67,.92);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.4); z-index: 6;
+}
+#admin-bar button {
+  flex: 1; min-width: 70px; padding: 9px; border: none; border-radius: 8px;
+  color: #fff; background: linear-gradient(180deg, #2b7bff, var(--accent)); font-size: 12px;
+}
+
+.admin-edit {
+  float: right; color: var(--gold); font-size: 16px;
+  padding: 2px 8px; opacity: .9;
+}
+.admin-new-coin { cursor: pointer; font-weight: 700; }
+.admin-edited { color: #4ade80; font-size: 11px; font-weight: 700; }
+
+.cd-edit-btn {
+  display: inline-block; margin: 0 0 10px; padding: 8px 14px;
+  border: none; border-radius: 8px;
+  background: linear-gradient(180deg, #2b7bff, var(--accent));
+  color: #fff; font-size: 13px;
+}
+
+#admin-editor {
+  position: fixed; inset: 0; z-index: 2100;
+  background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center;
+  overflow-y: auto; padding: 16px 0;
+}
+.admin-card {
+  background: var(--card); border-radius: 16px; padding: 16px;
+  width: 92vw; max-width: 400px; max-height: 94vh; overflow-y: auto;
+  font-size: 14px; color: var(--text-main);
+  box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 1px solid #334155;
+}
+.admin-card h3 { margin: 0 0 8px; color: #f8fafc; font-size: 17px; }
+.admin-card label { display: block; margin: 9px 0 2px; font-size: 12px; color: var(--text-muted); }
+.admin-card input, .admin-card select, .admin-card textarea {
+  width: 100%; box-sizing: border-box; padding: 9px;
+  border: 1px solid #475569; border-radius: 8px; font-size: 14px;
+  background: #1a2336; color: #f8fafc; font-family: inherit;
+}
+.admin-card textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+.admin-card input:focus, .admin-card textarea:focus, .admin-card select:focus {
+  outline: none; border-color: var(--accent);
+}
+.admin-card .row { display: flex; gap: 6px; margin-top: 12px; }
+.admin-card .row button {
+  flex: 1; padding: 9px; border: none; border-radius: 8px;
+  color: #fff; background: linear-gradient(180deg, #2b7bff, var(--accent)); font-size: 13px;
+}
+.btn-danger {
+  background: linear-gradient(180deg, #e74c3c, #c0392b) !important;
+}
+.admin-img-preview {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px; min-height: 70px; margin-top: 8px;
+  background: rgba(15,23,42,.6); border: 1px dashed var(--line); border-radius: 10px;
+}
+.admin-img-preview img {
+  max-height: 120px; max-width: 100%; border-radius: 8px;
+  border: 2px solid var(--gold); background: #fff;
+}
+.admin-img-preview .admin-hint { text-align: center; }
+.admin-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.admin-picks { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 2px; }
+.admin-picks .pick {
+  width: 84px; height: 84px; flex-shrink: 0; border-radius: 8px;
+  overflow: hidden; border: 2px solid transparent; background: #fff; cursor: pointer;
+}
+.admin-picks .pick.sel { border-color: var(--gold); }
+.admin-picks img { width: 100%; height: 100%; object-fit: contain; }
+
+#pin-modal {
+  position: fixed; inset: 0; z-index: 2200;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+}
+
+
+/* ============================================================
+   ПРИЦЕЛ ТОЧНОЙ ОТМЕТКИ
+   ============================================================ */
+
+#crosshair {
+  position: fixed; left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 1100; pointer-events: none;
+}
+#crosshair .ch-dot {
+  position: absolute; left: 50%; top: 50%;
+  width: 6px; height: 6px; margin: -3px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 8px rgba(0,0,0,.9);
+}
+#crosshair .ch-ring {
+  position: absolute; left: 50%; top: 50%;
+  width: 44px; height: 44px; margin: -22px;
+  border: 2px solid var(--gold); border-radius: 50%;
+  opacity: .9; animation: chPulse 1.6s ease-out infinite;
+}
+@keyframes chPulse {
+  0% { transform: scale(.75); opacity: .9; }
+  70% { transform: scale(1.3); opacity: 0; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+#crosshair .ch-line {
+  position: absolute; background: var(--gold);
+  box-shadow: 0 0 6px rgba(0,0,0,.9);
+}
+#crosshair .ch-top { left: 50%; top: calc(50% - 36px); width: 2px; height: 17px; transform: translateX(-50%); }
+#crosshair .ch-bottom { left: 50%; top: calc(50% + 19px); width: 2px; height: 17px; transform: translateX(-50%); }
+#crosshair .ch-left { top: 50%; left: calc(50% - 36px); width: 17px; height: 2px; transform: translateY(-50%); }
+#crosshair .ch-right { top: 50%; left: calc(50% + 19px); width: 17px; height: 2px; transform: translateY(-50%); }
+
+#place-bar {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: 96px; z-index: 1150; display: flex; gap: 10px;
+}
+#place-bar button {
+  padding: 10px 18px; border: none; border-radius: 12px;
+  font-size: 14px; color: #fff; box-shadow: 0 6px 20px rgba(0,0,0,.5);
+}
+#place-bar #place-ok { background: linear-gradient(180deg, #3ec26d, #27ae60); }
+#place-bar .btn-grey { background: rgba(71, 85, 105, .92); }
+
+
+/* ============================================================
+   ФОТО НАХОДОК И НАВИГАЦИЯ К ТОЧКЕ
+   ============================================================ */
+
+.spot-thumbs { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; flex-wrap: wrap; }
+.spot-thumbs:empty { display: none; }
+
+.ph-thumb {
+  position: relative; width: 56px; height: 56px; flex-shrink: 0;
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+  border: 2px solid var(--gold); background: #0f172a;
+}
+.ph-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ph-thumb .ph-del {
+  position: absolute; top: 0; right: 0;
+  width: 18px; height: 18px; line-height: 16px; text-align: center;
+  background: rgba(0,0,0,.65); color: #fff; font-size: 11px; border-radius: 0 6px 0 6px;
+}
+.ph-add {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); font-size: 18px; background: rgba(255,255,255,.06);
+}
+
+#spot-photo {
+  width: 100%; margin-top: 10px; padding: 9px;
+  border: 1px dashed #475569; border-radius: 8px; background: #1a2336;
+  color: #cbd5e1; font-size: 13px;
+}
+
+.li-photo { color: var(--gold); font-size: 11px; font-weight: 700; padding: 0 4px; }
+.li-nav { color: var(--gold); font-size: 13px; padding: 2px 6px; cursor: pointer; }
+
+#nav-panel {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  z-index: 1300; max-width: 92vw;
+  background: rgba(20, 28, 48, .95); border: 1px solid #334155;
+  border-radius: 14px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.6);
+}
+#nav-arrow { font-size: 34px; color: var(--gold); transition: transform .2s; }
+#nav-dist { font-size: 18px; font-weight: 800; color: #fff; }
+#nav-name {
+  font-size: 12px; color: var(--text-muted);
+  max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#nav-brg { font-size: 11px; color: var(--text-muted); }
+#nav-close {
+  border: none; background: rgba(255,255,255,.12); color: #fff;
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+}
+
+
+/* ============================================================
+   ПАНЕЛЬ «ИСТОРИЧЕСКИЕ СНИМКИ»
+   ============================================================ */
+
+#history-panel {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 1400; width: 92vw; max-width: 480px; max-height: 80vh; overflow-y: auto;
+  background: linear-gradient(160deg, #141c30 0%, #1a2340 55%, #232048 100%);
+  border: 1px solid rgba(212, 175, 55, .35);
+  border-radius: 18px; padding: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .7);
+}
+.hp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.hp-head h3 { margin: 0; font-size: 17px; color: #f8fafc; }
+#history-cards h4 {
+  margin: 12px 0 6px; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--gold);
+}
+.hcard {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; margin-bottom: 8px; border-radius: 12px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .08);
+  transition: border-color .2s, background .2s;
+}
+.hcard-on { border-color: var(--gold); background: rgba(212, 175, 55, .12); }
+.hcard-ico { font-size: 22px; width: 34px; text-align: center; flex-shrink: 0; }
+.hcard-body { flex: 1; min-width: 0; }
+.hcard-body b { display: block; font-size: 13px; color: #fff; }
+.hcard-body small { color: #94a3b8; font-size: 11px; }
+.hcard-btn {
+  border: none; border-radius: 9px; padding: 7px 12px;
+  font-size: 12px; color: #fff; flex-shrink: 0;
+  background: linear-gradient(180deg, #2b7bff, var(--accent));
+}
+.hcard-link {
+  color: var(--gold); font-size: 12px; text-decoration: none; flex-shrink: 0;
+  padding: 6px 10px; border: 1px solid rgba(212, 175, 55, .4); border-radius: 9px;
+}
+.hcard-go { color: var(--gold); font-size: 16px; flex-shrink: 0; }
+.hlink { cursor: pointer; }
+.hlink:active { background: rgba(255, 255, 255, .12); }
+.hp-hint {
+  margin-top: 10px; font-size: 11px; color: #8ea0c0;
+  padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, .04);
+}
+#history-panel .btn-grey {
+  border: none; border-radius: 8px; padding: 7px 12px;
+  background: rgba(71, 85, 105, .9); color: #fff; font-size: 13px;
+}
+
+
+/* Заголовки групп подложек в панели слоёв */
+.lg-head {
+  margin: 10px 0 4px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--gold);
+}
+
+
+/* ============================================================
+   ОПТИМИЗАЦИЯ ПОД ПК И ТЕЛЕФОН
+   ============================================================ */
+
+/* --- Оба устройства: мелочи, которые заметно мешают, когда их нет --- */
+* { -webkit-tap-highlight-color: transparent; }
+button, .menu-item, .chip, .hcard { touch-action: manipulation; user-select: none; }
+input, textarea, select { user-select: text; font-size: 16px; } /* iOS: 16px — без автозума */
+.leaflet-container { cursor: crosshair; }
+
+/* --- Безопасные зоны (вырезы и «ушки» iPhone) --- */
+#topbar { top: env(safe-area-inset-top, 0px); }
+#search-bar { top: calc(54px + env(safe-area-inset-top, 0px)); }
+#nav-panel { top: calc(12px + env(safe-area-inset-top, 0px)); }
+#toolbar { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+#place-bar { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+#opacity-box { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+
+/* --- Ховеры: только там, где есть курсор мыши --- */
+@media (hover: hover) and (pointer: fine) {
+  #toolbar button:hover { transform: scale(1.08); filter: brightness(1.15); }
+  #toolbar button.rec:hover { filter: none; }
+  .menu-item:hover { background: rgba(255, 255, 255, .08); }
+  .hcard:hover { border-color: rgba(212, 175, 55, .5); background: rgba(255, 255, 255, .09); }
+  .hlink:hover .hcard-go { transform: translate(3px, -3px); }
+  .hcard-go { transition: transform .15s; }
+  .chip:hover { filter: brightness(1.2); }
+  #history-panel .btn-grey:hover, #place-bar button:hover { filter: brightness(1.2); }
+}
+
+/* --- ПК: широкие экраны --- */
+@media (min-width: 900px) {
+  #toolbar button { width: 54px; height: 54px; font-size: 22px; }
+  #menu-drawer { width: 300px; }
+  .modal-card { max-width: 420px; }
+  #history-panel { max-width: 540px; }
+  /* Контент страниц — читаемая колонка по центру */
+  .page-head, .page-actions, #finds-stats, #finds-filter, #finds-list,
+  #coin-search, #coins-list, #coin-detail, #admin-bar {
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  /* Аккуратные скроллбары */
+  .page::-webkit-scrollbar, #history-panel::-webkit-scrollbar,
+  #finds-list::-webkit-scrollbar, #coins-list::-webkit-scrollbar,
+  #coin-detail::-webkit-scrollbar { width: 8px; }
+  .page::-webkit-scrollbar-thumb, #history-panel::-webkit-scrollbar-thumb,
+  #finds-list::-webkit-scrollbar-thumb, #coins-list::-webkit-scrollbar-thumb,
+  #coin-detail::-webkit-scrollbar-thumb {
+    background: #334155; border-radius: 4px;
+  }
+  .page::-webkit-scrollbar-track, #finds-list::-webkit-scrollbar-track,
+  #coins-list::-webkit-scrollbar-track { background: transparent; }
+}
+
+/* --- Телефон: тулбар не «прилипает» к самому краю в портрете --- */
+@media (orientation: portrait) and (max-width: 899px) {
+  #toolbar { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+}
+
+
+/* ============================================================
+   ЗУМ-КНОПКИ: вниз слева, в стиле приложения
+   ============================================================ */
+.leaflet-bottom.leaflet-left {
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: calc(12px + env(safe-area-inset-left, 0px));
+}
+.leaflet-bar {
+  border: 1px solid #334155; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .5);
+}
+.leaflet-bar a {
+  background: #1e293b; color: var(--gold);
+  border-bottom: 1px solid #334155;
+}
+.leaflet-bar a:hover { background: #2a3752; color: #fff; }
+.leaflet-bar a:last-child { border-bottom: none; }
+.leaflet-bar a.leaflet-disabled { opacity: .35; }
+
+
+/* ===== Оффлайн-карта (в панели слоёв) ===== */
+#offline-box { display: flex; flex-direction: column; gap: 8px; }
+#offline-box #btn-offline-save {
+  width: 100%; padding: 10px; border: none; border-radius: 10px;
+  background: linear-gradient(180deg, #2b7bff, var(--accent));
+  color: #fff; font-size: 13px;
+}
+#offline-box #btn-offline-clear { width: 100%; }
+#offline-box small { color: var(--text-muted); font-size: 11px; line-height: 1.45; }
+
+
+/* ============================================================
+   О ПРИЛОЖЕНИИ
+   ============================================================ */
+
+#about-modal, #install-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.65);
+  display: flex; align-items: center; justify-content: center;
+}
+
+#install-body { color: #cbd5e1; font-size: 13.5px; line-height: 1.55; }
+#install-body b { color: #f8fafc; }
+#install-body ol { margin: 8px 0 0; padding-left: 20px; }
+#install-body li { margin-bottom: 6px; }
+#install-body .btn-install-go {
+  width: 100%; margin-top: 12px; padding: 11px; border: none;
+  border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+  background: linear-gradient(180deg, #d4a72c, #b8860b); color: #1a1305;
+}
+.about-card { max-width: 360px; padding: 0; overflow: hidden; }
+.about-head {
+  display: flex; align-items: center; gap: 12px; padding: 18px 18px 14px;
+  background: linear-gradient(135deg, #2b2340 0%, #1a2336 60%, #232e43 100%);
+  border-bottom: 1px solid #334155;
+}
+.about-coin {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  background: radial-gradient(circle at 35% 30%, #f3d975, #c9a227 60%, #8a6d1d);
+  box-shadow: 0 4px 14px rgba(201,162,39,.35), inset 0 0 8px rgba(0,0,0,.25);
+}
+.about-name { font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: .3px; }
+.about-tag { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.about-rows { padding: 10px 18px 2px; }
+.about-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 2px; font-size: 13px; color: var(--text-muted);
+  border-bottom: 1px dashed #2b3a55;
+}
+.about-row b { color: #f8fafc; font-weight: 600; }
+.about-text { margin: 10px 18px 0; font-size: 13px; line-height: 1.5; color: var(--text-main); }
+.about-keys {
+  margin: 10px 18px 0; font-size: 11.5px; line-height: 1.5; color: #8fa0bd;
+  background: #111a2d; border: 1px solid #2b3a55; border-radius: 10px; padding: 10px 12px;
+}
+.about-card .row { padding: 14px 18px 16px; margin: 0; }
+.drawer-foot {
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  color: #5c6b85; font-size: 11px; text-align: center;
+  border-top: 1px solid #2b3a55; letter-spacing: .2px;
+}
+
+
+/* ============================================================
+   ПОГОДА И НЕБО
+   ============================================================ */
+
+#weather-body { margin: 10px; padding-bottom: 20px; }
+.wcard {
+  background: linear-gradient(135deg, #232e43 0%, #1a2336 100%);
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.35); border: 1px solid #2b3a55;
+}
+.wcard h4 {
+  margin: 0 0 8px; font-size: 12px; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--gold);
+}
+.wrow {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #2b3a55;
+}
+.wrow:last-child { border-bottom: none; }
+.wrow span { color: var(--text-muted); }
+.wrow b { color: #f8fafc; font-weight: 600; }
+.wnow { display: flex; align-items: center; gap: 14px; padding: 4px 0 8px; }
+.wnow .wicon { font-size: 44px; }
+.wnow .wtemp { font-size: 30px; font-weight: 700; color: #f8fafc; line-height: 1.1; }
+.wnow .wdesc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.wnow b { color: #f8fafc; }
+.wwarn {
+  border: 1px solid #7a4a12; border-radius: 14px; padding: 12px 16px;
+  margin-bottom: 10px; font-size: 13px; line-height: 1.45;
+  background: linear-gradient(135deg, #3a2b12, #241a0e); color: #ffd479;
+}
+.wok {
+  border: 1px solid #2b5c37; border-radius: 14px; padding: 12px 16px;
+  margin-bottom: 10px; font-size: 13px; line-height: 1.45;
+  background: linear-gradient(135deg, #16301e, #0f2015); color: #9fdcb0;
+}
+.wloading { text-align: center; color: #8fa0bd; padding: 24px 12px; font-size: 14px; }
+.wsrc { font-size: 11px; color: #5c6b85; text-align: center; padding: 6px 0 18px; }
+.wbar {
+  height: 8px; border-radius: 4px; background: #111a2d;
+  overflow: hidden; margin: 8px 0 2px; border: 1px solid #2b3a55;
+}
+.wbar i { display: block; height: 100%; background: linear-gradient(90deg, #3b82f6, #c9a227); border-radius: 4px; }
+
+.wsoft {
+  border: 1px solid #334155; border-radius: 14px; padding: 12px 16px;
+  margin-bottom: 10px; font-size: 13px; line-height: 1.45;
+  background: #1a2336; color: #cdd7ea;
+}
+
+
+/* ============================================================
+   ПОГОДА И НЕБО, камрад (новый стиль)
+   ============================================================ */
+
+#wplace-box {
+  display: flex; gap: 6px; margin: 10px; flex-shrink: 0;
+}
+#wplace-box input {
+  flex: 1; box-sizing: border-box; padding: 10px 12px;
+  border: 1px solid #2b3a55; border-radius: 10px; font-size: 14px;
+  background: #111a2d; color: #f8fafc;
+}
+#wplace-box button {
+  border: 1px solid #2b3a55; border-radius: 10px; background: #1a2336;
+  color: #f8fafc; font-size: 16px; padding: 0 14px; cursor: pointer;
+}
+#wplace-results {
+  margin: 0 10px 10px; background: #1a2336; border: 1px solid #2b3a55;
+  border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  flex-shrink: 0;
+}
+.wp-item {
+  padding: 10px 14px; font-size: 14px; color: #f8fafc;
+  border-bottom: 1px solid #2b3a55; cursor: pointer;
+}
+.wp-item:last-child { border-bottom: none; }
+.wp-item:active, .wp-item:hover { background: #232e43; }
+.wp-item small { color: #8fa0bd; font-size: 11px; display: block; margin-top: 2px; }
+.wp-sr { padding: 10px 14px; font-size: 13px; color: #8fa0bd; }
+.w2-hero {
+  margin: 0 10px 12px; border-radius: 18px; padding: 18px;
+  background: linear-gradient(160deg, #2b2340 0%, #1a2336 55%, #232e43 100%);
+  border: 1px solid #3b4a68; box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+.w2-place { font-size: 13px; color: #c9a227; letter-spacing: .4px; margin-bottom: 8px; }
+.w2-main { display: flex; align-items: center; gap: 16px; }
+.w2-ico { font-size: 52px; line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.w2-temp { font-size: 44px; font-weight: 800; color: #f8fafc; line-height: 1.05; }
+.w2-desc { font-size: 15px; color: #cdd7ea; margin-top: 2px; }
+.w2-phrase {
+  margin-top: 14px; font-size: 13.5px; line-height: 1.5; color: #ffd479;
+  background: rgba(201,162,39,.08); border-left: 3px solid #c9a227;
+  border-radius: 0 10px 10px 0; padding: 10px 12px; font-style: italic;
+}
+.w2-tiles {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px;
+}
+.w2-tile {
+  background: rgba(0,0,0,.25); border: 1px solid #2b3a55; border-radius: 12px;
+  padding: 9px 12px; font-size: 13px; color: #8fa0bd;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.w2-tile b { color: #f8fafc; font-weight: 700; }
+
+.wplace-hint {
+  margin: 0 10px 10px; font-size: 11.5px; color: #5c6b85; flex-shrink: 0;
+}
+
+
+/* ===== Каталог старины ===== */
+#a-search, #a-list, #a-detail, #a-admin-bar, .a-empty, .a-hero-img,
+.a-thumbs, .a-fields, .a-desc { flex-shrink: 0; }
+.a-empty {
+  padding: 14px; text-align: center; color: #5c6b85; font-size: 13px;
+  line-height: 1.6;
+}
+.a-hero-img {
+  display: block; width: calc(100% - 20px); margin: 0 10px;
+  max-height: 320px; object-fit: contain; border-radius: 12px;
+  background: #0d1526; border: 1px solid #2b3a55;
+}
+.a-thumbs { display: flex; gap: 8px; overflow-x: auto; padding: 8px 10px; }
+.a-thumbs .a-thumb {
+  width: 64px; height: 64px; border-radius: 8px; object-fit: cover;
+  border: 2px solid #2b3a55; flex-shrink: 0; cursor: pointer; background: #111a2d;
+}
+.a-thumbs .a-thumb.on { border-color: #d4a72c; }
+.a-fields { margin: 4px 10px 0; }
+.a-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.07);
+  font-size: 13px; color: #cbd5e1;
+}
+.a-row b { color: #f8fafc; text-align: right; }
+.a-desc { margin: 10px; color: #cbd5e1; font-size: 13.5px; line-height: 1.55; }
+.a-imgrows { display: flex; flex-direction: column; gap: 6px; }
+.a-imgrow { display: flex; gap: 6px; align-items: center; }
+.a-imgrow img {
+  width: 34px; height: 34px; border-radius: 6px; object-fit: cover;
+  background: #111a2d; flex-shrink: 0;
+}
+.a-imgrow input { flex: 1; min-width: 0; }
+.a-add-card .gport { color: #d4a72c; font-weight: 700; }
+
+
+/* ===== Меню: секция каталогов ===== */
+.menu-label {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: #d4a72c; padding: 10px 16px 6px; font-weight: 700;
+}
+.menu-item.catalog {
+  border-left: 3px solid #d4a72c;
+  margin-left: 10px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(201,162,39,.12), rgba(201,162,39,0) 80%);
+}
+.menu-item.catalog:active { background: rgba(201,162,39,.22); }
+
+
+/* ===== Неопубликованные правки: красная точка на «📤 GitHub» ===== */
+.gh-btn { position: relative; }
+.gh-btn.dirty::after {
+  content: ""; position: absolute; top: -5px; right: -5px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #ff5252; box-shadow: 0 0 6px #ff5252;
+}
+/* Стрелки сортировки в админ-режиме */
+.admin-move { float: right; color: #8ab4ff; font-size: 15px; padding: 2px 5px; }
