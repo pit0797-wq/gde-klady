@@ -1144,3 +1144,94 @@ input, textarea, select { user-select: text; font-size: 16px; } /* iOS: 16px —
 }
 /* Стрелки сортировки в админ-режиме */
 .admin-move { float: right; color: #8ab4ff; font-size: 15px; padding: 2px 5px; }
+
+
+/* ============================================================
+   СЕЗОН, ПОЛЯ ТОЧКИ, ПРИВЯЗКА К МОНЕТЕ, ЗАКОНЫ
+   ============================================================ */
+
+/* Два поля в один ряд в модалке точки */
+.row2 { display: flex; gap: 10px; }
+.row2 > div { flex: 1; min-width: 0; }
+.row2 label { display: block; font-size: 12px; color: var(--text-muted); margin: 8px 0 4px; }
+.row2 input, .row2 select { width: 100%; box-sizing: border-box; }
+
+/* Блок «за сезон» на странице находок */
+#finds-season {
+  margin: 8px 10px 0; font-size: 13px; color: var(--text-muted);
+  background: linear-gradient(135deg, rgba(203,162,39,.13), rgba(35,46,67,.85));
+  border: 1px solid rgba(203,162,39,.35); border-radius: 10px;
+  padding: 9px 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  box-shadow: inset 0 0 8px rgba(0,0,0,.25);
+}
+#finds-season b { color: var(--gold); }
+#finds-season .chip { margin-left: auto; font-size: 12px; padding: 5px 10px; }
+
+/* Монета, привязанная к находке — в списке и попапе */
+.s-coin { color: var(--gold); cursor: pointer; text-decoration: underline dotted; }
+
+/* Кнопка привязки в карточке монеты */
+.bind-btn {
+  width: 30px; height: 30px; border-radius: 8px; flex: 0 0 auto;
+  background: rgba(203,162,39,.18); border: 1px solid rgba(203,162,39,.45);
+  color: var(--gold); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.bind-btn:hover { background: rgba(203,162,39,.32); }
+#coins-list li .bind-btn { position: absolute; right: 10px; bottom: 10px; }
+#coins-list li { position: relative; }
+
+/* Баннер режима выбора монеты */
+#bind-banner {
+  margin: 10px 10px 0; padding: 9px 12px; border-radius: 10px; font-size: 13px;
+  color: #0f172a; background: var(--gold); font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 14px rgba(203,162,39,.4);
+}
+#bind-banner.hidden { display: none; }
+#bind-banner button {
+  margin-left: auto; border: none; background: rgba(15,23,42,.2); color: #0f172a;
+  border-radius: 8px; padding: 4px 10px; cursor: pointer; font-weight: 700;
+}
+
+/* Кнопка привязки в детальном просмотре монеты */
+.cd-bind-btn {
+  display: block; width: 100%; margin: 8px 0 2px; padding: 9px;
+  border: 1px solid rgba(203,162,39,.5); border-radius: 10px; cursor: pointer;
+  background: rgba(203,162,39,.15); color: var(--gold); font-weight: 600;
+}
+
+/* Страница «Законы» */
+#laws-body { padding-bottom: 24px; }
+.law-card {
+  background: linear-gradient(135deg, #232e43 0%, #1a2336 100%);
+  border: 1px solid #334155; border-radius: 14px;
+  padding: 14px 16px; margin: 10px; color: var(--text-main);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.law-card h4 { margin: 0 0 6px; color: var(--gold); font-size: 15px; }
+.law-card p, .law-card li { font-size: 13px; line-height: 1.5; color: #cbd5e1; margin: 4px 0; }
+.law-card ul { margin: 4px 0 0 18px; padding: 0; }
+.law-note {
+  margin: 10px; font-size: 12px; color: #f0b35e;
+  background: rgba(240,179,94,.1); border: 1px solid rgba(240,179,94,.35);
+  border-radius: 10px; padding: 8px 12px;
+}
+
+
+/* Статистика по материалам в блоке сезона */
+#finds-season .fs-mat { width: 100%; opacity: .85; font-size: 12px; }
+
+/* Легенда тепловой карты */
+#heat-legend {
+  position: absolute; left: 12px; bottom: 24px; z-index: 1200;
+  background: rgba(15,23,42,.88); color: #e2e8f0; font-size: 12px;
+  border: 1px solid #334155; border-radius: 10px; padding: 6px 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+}
+#heat-legend.hidden { display: none; }
+#heat-legend i {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  margin: 0 4px 0 8px; vertical-align: middle;
+}
+#heat-legend i:first-child { margin-left: 0; }

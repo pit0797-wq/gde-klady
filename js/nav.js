@@ -75,6 +75,13 @@ function navEnableCompass() {
   }
 }
 
+// Приход координат из общего GPS-вотча (app.js вызывает __navOnPos)
+window.__navOnPos = function (p) {
+  if (!p || !p.coords) return;
+  navLastPos = [p.coords.latitude, p.coords.longitude];
+  navUpdate();
+};
+
 window.__navSpotById = function (id) {
   const s = (typeof spots !== "undefined" ? spots : []).find(x => x.id === +id);
   if (s) window.__navTo(s.ll, s.note);

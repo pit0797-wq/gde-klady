@@ -12,7 +12,7 @@ document.getElementById("btn-menu").onclick = () => toggleDrawer();
 backdrop.onclick = () => toggleDrawer(false);
 
 function showView(name) {
-  ["view-finds", "view-coins", "view-weather", "view-antiques"].forEach(id =>
+  ["view-finds", "view-coins", "view-weather", "view-antiques", "view-laws"].forEach(id =>
     document.getElementById(id).classList.toggle("hidden", id !== "view-" + name));
   toggleDrawer(false);
   if (window.__cancelPlacing) window.__cancelPlacing();
@@ -120,8 +120,13 @@ document.getElementById("install-modal").addEventListener("click", (e) => {
   if (!drawer) return;
   const foot = document.createElement("div");
   foot.className = "drawer-foot";
-  foot.textContent = APP_NAME + " v" + APP_VERSION + " · " + APP_AUTHOR;
   drawer.appendChild(foot);
+  // Версия живая: берём getAppVersion() и обновляем при смене через админку
+  window.__updateDrawerFoot = function () {
+    const v = (typeof getAppVersion === "function") ? getAppVersion() : APP_VERSION;
+    foot.textContent = APP_NAME + " v" + v + " · " + APP_AUTHOR;
+  };
+  window.__updateDrawerFoot();
 })();
 
 // ===== Параллакс: фон чуть отстаёт при скролле =====

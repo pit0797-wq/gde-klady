@@ -80,6 +80,15 @@ function importJson(text) {
       note: (sp.note || "").trim() || "Импорт",
       ts: sp.ts || new Date().toLocaleString(),
     };
+    // Бэкап должен возвращаться как был: глубина, материал, точная дата, монета
+    if (sp.iso && typeof sp.iso === "string") s.iso = sp.iso;
+    if (typeof sp.period === "string" && sp.period) s.period = String(sp.period).slice(0, 60);
+    if (sp.dep != null && isFinite(+sp.dep) && +sp.dep >= 0) s.dep = Math.min(999, Math.round(+sp.dep));
+    if (typeof sp.mat === "string" && sp.mat) s.mat = String(sp.mat).slice(0, 40);
+    if (sp.coin && typeof sp.coin === "object" && (sp.coin.n || sp.coin._id)) {
+      s.coin = { _id: sp.coin._id || null, g: sp.coin.g || "", n: sp.coin.n || "",
+                 y: sp.coin.y || "", m: sp.coin.m || "" };
+    }
     spots.push(s);
     addSpotMarker(s);
     added++;
@@ -91,15 +100,19 @@ function importJson(text) {
     const numOk = v =>
       (typeof v === "number" || typeof v === "string") &&
       String(v).trim() !== "" && isFinite(+v);
-    const pts = data.track.filter(ll =>
-      Array.isArray(ll) && ll.length === 2 && numOk(ll[0]) && numOk(ll[1]))
-      .map(ll => [+ll[0], +ll[1]]);
-    if (pts.length) {
-      track = pts;
+    const okLL = ll => Array.isArray(ll) && ll.length === 2 && numOk(ll[0]) && numOk(ll[1]);
+    // Старый формат — плоский список; новый — сегменты (массивы сегментов)
+    const isSegs = Array.isArray(data.track[0]) && Array.isArray(data.track[0][0]);
+    const segs = (isSegs ? data.track : [data.track])
+      .map(seg => Array.isArray(seg) ? seg.filter(okLL).map(ll => [+ll[0], +ll[1]]) : [])
+      .filter(seg => seg.length);
+    const pts = segs.reduce((n, s) => n + s.length, 0);
+    if (pts) {
+      track = segs;
       if (trackLine) trackLine.setLatLngs(track);
       else drawTrack();
       saveTrack();
-      trkMsg = ", трек: " + pts.length + " точек";
+      trkMsg = ", трек: " + pts + " точек";
     }
   }
 

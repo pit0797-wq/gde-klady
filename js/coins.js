@@ -600,6 +600,15 @@ function coinLi(c) {
       : "");
   li.appendChild(body);            // <<< ЭТО БЫЛО ПРОПУЩЕНО: блок с текстом не добавлялся в карточку
   li.onclick = () => showCoin(c);
+  // В режиме «выбрать монету для находки» у каждой карточки кнопка 📍
+  if (window.__bindSpotId != null && typeof window.__bindCoinToSpot === "function") {
+    const bb = document.createElement("span");
+    bb.className = "bind-btn";
+    bb.title = "Привязать к находке";
+    bb.textContent = "📍";
+    bb.onclick = e => { e.stopPropagation(); window.__bindCoinToSpot(window.__bindSpotId, c); };
+    li.appendChild(bb);
+  }
   if (window.adminIsOn && window.adminIsOn()) {
     const ed = document.createElement("span");
     ed.className = "admin-edit";
@@ -625,6 +634,7 @@ function renderCoins() {
   const q = (document.getElementById("coin-search").value || "").toLowerCase().trim();
   ul.innerHTML = "";
   document.getElementById("coin-detail").classList.add("hidden");
+  updateBindBanner();
 
   if (q) {
     COINS.forEach(c => {
@@ -743,6 +753,7 @@ function showCoin(c) {
     `<div class="cd-metal-badge">${metalIcon} ${c.m}</div>` +
     `<h3 class="cd-title">${c.n}</h3>` +
     `<div class="cd-sub">${c.y}</div>` +
+    ((window.__bindSpotId != null) ? `<button class="cd-bind-btn" onclick="window.__bindCoinFromDetail()">📍 Привязать к находке</button>` : "") +
     `<div class="cd-imgs" id="cd-imgs"><div class="cd-photo skel"></div></div>` +
     `<table>` +
     `<tr><td>Годы</td><td>${c.y}</td></tr>` +
@@ -760,6 +771,7 @@ function showCoin(c) {
   // не вливаем старые картинки в новую карточку
   const coinToken = c.g + "|" + c.n + "|" + c.y;
   det.dataset.coin = coinToken;
+  window.__currentDetailCoin = c;
 
   loadCoinImages(c).then(imgs => {
     if (det.dataset.coin !== coinToken) return;
@@ -791,3 +803,43 @@ window.__openCoinCatalog = function () {
 };
 
 document.getElementById("coin-search").addEventListener("input", renderCoins);
+
+
+// ===== ПРИВЯЗКА НАХОДКИ К МОНЕТЕ ИЗ КАТАЛОГА =====
+// Находка на карте хранит ссылку на монету (id, группа, название, год).
+// Режим «выбрать монету»: из попапа находки открываем каталог с баннером.
+function updateBindBanner() {
+  const bn = document.getElementById("bind-banner");
+  if (!bn) return;
+  const sid = window.__bindSpotId;
+  if (sid == null) { bn.classList.add("hidden"); bn.innerHTML = ""; return; }
+  const sp = (typeof spots !== "undefined") ? spots.find(x => x.id === sid) : null;
+  bn.classList.remove("hidden");
+  bn.innerHTML = `📍 Выбор монеты для «${escA(sp ? (sp.note || "") : "")}»` +
+    `<button id="bind-cancel" title="Отменить выбор">✕</button>`;
+  const btn = document.getElementById("bind-cancel");
+  if (btn) btn.onclick = () => window.__clearBindContext();
+}
+
+window.__clearBindContext = function () {
+  window.__bindSpotId = null;
+  if (typeof renderCoins === "function") renderCoins();
+};
+
+window.__bindCoinToSpot = function (spotId, c) {
+  if (!c || typeof saveSpots !== "function") return;
+  const sp = (typeof spots !== "undefined") ? spots.find(x => x.id === spotId) : null;
+  if (!sp) { if (typeof toast === "function") toast("Находка не найдена"); return; }
+  sp.coin = { _id: c._id || null, g: c.g, n: c.n, y: c.y, m: c.m || "" };
+  saveSpots();
+  if (window.__refreshSpotMarker) window.__refreshSpotMarker(spotId);
+  if (typeof renderFinds === "function") renderFinds();
+  window.__clearBindContext();
+  if (window.showView) window.showView("map");
+  if (typeof toast === "function") toast("Привязано: " + c.n);
+};
+
+window.__bindCoinFromDetail = function () {
+  const c = window.__currentDetailCoin;
+  if (c && window.__bindSpotId != null) window.__bindCoinToSpot(window.__bindSpotId, c);
+};

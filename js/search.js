@@ -1,6 +1,7 @@
 // ===== ПОИСК ПО АДРЕСУ (OpenStreetMap Nominatim) =====
 const input = document.getElementById("search-input");
 const results = document.getElementById("search-results");
+let searchPin = null; // маркер найденного места — только один, предыдущий убираем
 
 function doSearch() {
   const q = input.value.trim();
@@ -23,7 +24,8 @@ function doSearch() {
         div.textContent = item.display_name;
         div.onclick = () => {
           map.flyTo([+item.lat, +item.lon], 16);
-          L.circleMarker([+item.lat, +item.lon],
+          if (searchPin) map.removeLayer(searchPin);
+          searchPin = L.circleMarker([+item.lat, +item.lon],
             { radius: 10, color: "#1f6feb", fillOpacity: .5 }).addTo(map);
           results.classList.add("hidden");
         };

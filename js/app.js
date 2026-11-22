@@ -399,11 +399,56 @@ window.__historyRender = function () {
 // Трек сохраняется в localStorage: перезагрузка страницы, звонок или
 // свёрнутое приложение больше не стирают пройденное.
 let userMarker = null, trackLine = null, track = [], tracking = false, watchId = null;
+let lastPosTs = null;
 const TRACK_KEY = "track";
+// Трек хранится СЕГМЕНТАМИ: [[ [lat,lng], … ], [ … ]]. Если GPS пропадал
+// (просыпание телефона, сбой сигнала, выключение записи) — новый приход
+// координат открывает новый сегмент, а не рисует прямую через весь лес.
+
+function trackCount() {
+  let n = 0;
+  track.forEach(seg => { if (Array.isArray(seg)) n += seg.length; });
+  return n;
+}
+
+// Обрезаем хвост, чтобы хранилище не разрасталось: последние 20000 точек
+function capTrack() {
+  let total = trackCount();
+  while (total > 20000 && track.length) {
+    const cut = total - 20000;
+    const first = track[0];
+    if (!Array.isArray(first)) { track.shift(); continue; }
+    if (first.length <= cut) { track.shift(); total -= first.length; }
+    else { track[0] = first.slice(cut); total = 20000; }
+  }
+}
 
 function saveTrack() {
-  try { localStorage.setItem(TRACK_KEY, JSON.stringify(track.slice(-20000))); } catch (e) {}
+  try {
+    capTrack();
+    localStorage.setItem(TRACK_KEY, JSON.stringify(track));
+  } catch (e) {}
 }
+
+// Расстояние между точками, метров (гаверсинус)
+function llDist(a, b) {
+  const R = 6371000, rad = Math.PI / 180;
+  const dLat = (b[0] - a[0]) * rad, dLng = (b[1] - a[1]) * rad;
+  const s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
+// Полная длина трека в км — по всем сегментам
+function trackKm() {
+  let m = 0;
+  track.forEach(seg => {
+    if (!Array.isArray(seg)) return;
+    for (let i = 1; i < seg.length; i++) m += llDist(seg[i - 1], seg[i]);
+  });
+  return m / 1000;
+}
+window.__trackKm = trackKm;
 
 function drawTrack() {
   if (!track.length) return;
@@ -415,10 +460,20 @@ function onPos(p) {
   if (!userMarker) userMarker = L.circleMarker(ll, { radius: 8, color: "#00b", fillOpacity: .8 }).addTo(map);
   else userMarker.setLatLng(ll);
   if (tracking) {
-    track.push(ll);
-    if (trackLine) trackLine.setLatLngs(track);
-    else trackLine = L.polyline(track, { color: "#ff0" }).addTo(map);
-    if (track.length % 20 === 0) saveTrack(); // копим и пишем пачками
+    // Разрыв трека: прыжок дальше 250 м или пауза дольше 5 минут — новый сегмент
+    const seg = track.length ? track[track.length - 1] : null;
+    const last = seg && seg.length ? seg[seg.length - 1] : null;
+    const timeGap = lastPosTs ? (Date.now() - lastPosTs) / 60000 : 0;
+    if (!last || llDist(last, ll) > 250 || timeGap > 5) {
+      track.push([ll]);
+      if (trackLine) trackLine.setLatLngs(track);
+      else trackLine = L.polyline(track, { color: "#ff0" }).addTo(map);
+    } else {
+      seg.push(ll);
+      trackLine.setLatLngs(track);
+    }
+    lastPosTs = Date.now();
+    if (trackCount() % 20 === 0) saveTrack(); // копим и пишем пачками
   }
   if (window.__navOnPos) window.__navOnPos(p);
 }
@@ -428,13 +483,18 @@ try {
   const savedTrack = JSON.parse(localStorage.getItem(TRACK_KEY) || "[]");
   if (Array.isArray(savedTrack) && savedTrack.length) {
     // строго числа: isFinite(null) = true — null-точка уехала бы в нули
-    track = savedTrack.filter(ll =>
-      Array.isArray(ll) && ll.length === 2 &&
-      typeof ll[0] === "number" && typeof ll[1] === "number" &&
-      isFinite(ll[0]) && isFinite(ll[1]));
+    // Старый формат — плоский список [ [lat,lng], … ]; новый — сегменты
+    const isSegs = Array.isArray(savedTrack[0]) && Array.isArray(savedTrack[0][0]);
+    track = (isSegs ? savedTrack : [savedTrack])
+      .filter(Array.isArray)
+      .map(seg => seg.filter(ll =>
+        Array.isArray(ll) && ll.length === 2 &&
+        typeof ll[0] === "number" && typeof ll[1] === "number" &&
+        isFinite(ll[0]) && isFinite(ll[1])))
+      .filter(seg => seg.length);
     drawTrack();
-    if (track.length)
-      setTimeout(() => toast("Восстановлен трек прошлых выходов: " + track.length + " точек"), 800);
+    if (trackCount())
+      setTimeout(() => toast("Восстановлен трек прошлых выходов: " + trackCount() + " точек"), 800);
   }
 } catch (e) {}
 
@@ -459,9 +519,9 @@ document.getElementById("btn-locate").onclick = function () {
 };
 
 document.getElementById("btn-track").onclick = function () {
-  if (!tracking && track.length) {
+  if (!tracking && trackCount()) {
     const cont = confirm(
-      "Продолжить текущий трек (" + track.length + " точек)?\n" +
+      "Продолжить текущий трек (" + trackCount() + " точек)?\n" +
       "«ОК» — продолжить, «Отмена» — начать новый трек.");
     if (!cont) {
       track = [];
@@ -481,10 +541,12 @@ document.getElementById("btn-export").onclick = () => {
     if (!Array.isArray(s.ll) || s.ll.length !== 2) return;
     gpx += `<wpt lat="${s.ll[0]}" lon="${s.ll[1]}"><name>${escXml(s.note)}</name></wpt>`;
   });
-  if (track.length)
-    gpx += `<trk><name>${escXml("Трек")}</name><trkseg>` +
-      track.map(ll => `<trkpt lat="${ll[0]}" lon="${ll[1]}"/>`).join("") +
-      `</trkseg></trk>`;
+  if (trackCount())
+    gpx += `<trk><name>${escXml("Трек")}</name>` +
+      track.map(seg => (Array.isArray(seg) && seg.length)
+        ? `<trkseg>` + seg.map(ll => `<trkpt lat="${ll[0]}" lon="${ll[1]}"/>`).join("") + `</trkseg>`
+        : "").join("") +
+      `</trk>`;
   gpx += "</gpx>";
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([gpx], { type: "application/gpx+xml" }));

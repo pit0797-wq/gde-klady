@@ -38,6 +38,7 @@
     <div class="menu-item" data-view="map">🗺 Карта</div>
     <div class="menu-item" data-view="finds">📋 Список находок</div>
     <div class="menu-item" data-view="weather">🌤 Погода и небо</div>
+    <div class="menu-item" data-view="laws">⚖ Законы</div>
     <div class="menu-sep"></div>
     <div class="menu-label">📖 Каталоги</div>
     <div class="menu-item catalog" data-view="coins">🪙 Монеты</div>
@@ -88,11 +89,36 @@
   <!-- Модалка новой точки -->
   <div id="spot-modal" class="hidden">
     <div class="modal-card">
-      <h3>Новая отметка</h3>
+      <h3 id="spot-modal-title">Новая отметка</h3>
       <label>Тип</label>
       <select id="spot-type"></select>
       <label>Название</label>
       <input id="spot-name" type="text">
+      <div class="row2">
+        <div>
+          <label>Глубина, см</label>
+          <input id="spot-depth" type="number" min="0" max="999" inputmode="numeric" placeholder="—">
+        </div>
+        <div>
+          <label>Материал</label>
+          <select id="spot-material"></select>
+        </div>
+      </div>
+      <label>Период находки</label>
+      <input id="spot-period" type="text" list="spot-period-list" placeholder="например: Орда (XIII–XV вв)">
+      <datalist id="spot-period-list">
+        <option value="Не определён">
+        <option value="Древность (до IX века)">
+        <option value="Древняя Русь (IX–XIII вв)">
+        <option value="Орда (XIII–XV вв)">
+        <option value="Московская Русь (XV–XVII вв)">
+        <option value="Петровская эпоха (кон. XVII–1725)">
+        <option value="XVIII век">
+        <option value="XIX век">
+        <option value="Начало XX века">
+        <option value="СССР">
+        <option value="Современность">
+      </datalist>
       <button id="spot-photo" type="button">📷 Добавить фото</button>
       <div id="spot-photos" class="spot-thumbs"></div>
       <div class="row">
@@ -110,6 +136,7 @@
     <button id="btn-track" title="Записать трек">⭕</button>
     <button id="btn-spot" title="Отметка">🎯</button>
     <button id="btn-list" title="Точки">📋</button>
+    <button id="btn-heat" title="Тепловая карта">🔥</button>
   </div>
 
   <!-- Прицел точной отметки (режим выбора места) -->
@@ -144,6 +171,7 @@
       <h3>Список находок</h3>
     </div>
     <div id="finds-stats"></div>
+    <div id="finds-season"></div>
     <div id="finds-filter"></div>
     <ul id="finds-list"></ul>
     <div class="row page-actions">
@@ -180,6 +208,7 @@
       <button id="admin-toggle" title="Админ-режим">🔒</button>
     </div>
     <input id="coin-search" type="text" placeholder="Поиск: год, металл, название…">
+    <div id="bind-banner" class="hidden"></div>
     <ul id="coins-list"></ul>
     <div id="coin-detail" class="hidden"></div>
     <div id="admin-bar" class="hidden">
@@ -221,6 +250,62 @@
       <button id="a-off" class="btn-grey">Выйти</button>
     </div>
     <input id="a-file" type="file" accept=".json" class="hidden">
+  </div>
+
+
+  <!-- Страница: Справочник законов -->
+  <div id="view-laws" class="page hidden">
+    <div class="page-head">
+      <button class="btn-back" data-view="map">←</button>
+      <h3>⚖ Законы копателя</h3>
+    </div>
+    <div id="laws-body">
+      <div class="law-note">Краткая справка для общего понимания — не юридическая консультация. Законы и их применение меняются: перед серьёзными решениями проверяй актуальные редакции или советуйся с юристом.</div>
+
+      <div class="law-card">
+        <h4>🔍 Металлоискатель — сам по себе законен</h4>
+        <p>Прибор продаётся свободно, владеть и носить его не запрещено. Вопрос всегда не «чем копаешь», а «где и что нашёл».</p>
+      </div>
+
+      <div class="law-card">
+        <h4>⛔ Главный запрет — культурный слой</h4>
+        <p>Поиск и извлечение <b>археологических предметов</b> из культурного слоя без разрешения запрещён законом об объектах культурного наследия (73-ФЗ), а за особо серьёзные случаи — и уголовная статья 243.2 УК РФ (до 6 лет).</p>
+        <p>Культурный слой — это место со следами жизни людей старше 100 лет: селища, городища, старинные поселения. Он далеко не всегда виден глазом — «пустое» поле может быть охраняемым.</p>
+      </div>
+
+      <div class="law-card">
+        <h4>🗺 Где копать нельзя</h4>
+        <ul>
+          <li>Памятники археологии и их охранные зоны (списки ведут региональные органы охраны наследия);</li>
+          <li>Заповедники, национальные парки, заказники;</li>
+          <li>Исторические поселения и их охранные зоны;</li>
+          <li>Кладбища и воинские захоронения;</li>
+          <li>Пограничная зона;</li>
+          <li>Чужая земля без согласия владельца — это ещё и самовольный уход за чужой собственностью.</li>
+        </ul>
+      </div>
+
+      <div class="law-card">
+        <h4>💰 Клад: кому он принадлежит</h4>
+        <p>Гражданский кодекс, ст. 233: спрятанные ценности при раскопке делятся поровну между владельцем земли и нашедшим (если иное не оговорено заранее). Но если клад имеет историческую или культурную ценность — он уходит государству, а нашедшему полагается вознаграждение в размере его стоимости.</p>
+      </div>
+
+      <div class="law-card">
+        <h4>🗿 Если нашёл нечто похожее на археологию</h4>
+        <p>Старинная вещь в заметном историческом месте — сигнал: не сдёргивай её «начисто», сфотографируй, запиши координаты и сообщи в орган охраны наследия. Закон защищает такие предметы, а добровольное сообщение снимает большую часть рисков.</p>
+      </div>
+
+      <div class="law-card">
+        <h4>✅ Практика без проблем</h4>
+        <ul>
+          <li>Проверяй статус земли заранее — публичная кадастровая карта и сервисы Росреестра покажут, что за участок;</li>
+          <li>На чужой земле — устное или письменное согласие владельца;</li>
+          <li>Яму закрывай за собой, мусор забирай с собой;</li>
+          <li>В лесу и на полях не руби корни деревьев и не перекапывай кучи;</li>
+          <li>Находку везёшь домой — сфотографируй и запиши место, это твоя личная история находки.</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <!-- Ввод PIN для админ-режима -->
@@ -287,7 +372,8 @@
   <script src="js/import.js"></script>
   <script src="js/search.js"></script>
   <script src="js/antiques.js"></script>
-  <script src="js/menu.js"></script>
+  <script src="js/heatmap.js"></script>
+<script src="js/menu.js"></script>
 <script src="js/weather.js"></script>
   <script src="js/coins.js"></script>
   <script src="js/admin.js"></script>

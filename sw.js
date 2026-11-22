@@ -3,7 +3,7 @@
 // Оффлайн доступны: само приложение, точки, треки, каталог и те места
 // карты, которые уже открывали в этой зоне.
 
-const SHELL = "kopar-shell-v15";
+const SHELL = "kopar-shell-v19";
 const TILES = "kopar-tiles-v3";
 
 const SHELL_ASSETS = [
@@ -12,7 +12,7 @@ const SHELL_ASSETS = [
   "./js/layers.js", "./js/app.js", "./js/spots.js", "./js/photos.js",
   "./js/nav.js", "./js/offline.js", "./js/import.js",
   "./js/search.js", "./js/menu.js", "./js/weather.js", "./js/coins.js",
-  "./js/antiques.js", "./js/admin.js",
+  "./js/antiques.js", "./js/admin.js", "./js/heatmap.js",
   "./icon-192.png", "./icon-512.png",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",

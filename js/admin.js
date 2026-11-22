@@ -167,14 +167,26 @@ applyCoinEdits();
         if (g && g.id && !gids.has(g.id)) { groups.push(g); newGroups++; }
       });
       const coinsArr = loadCustomCoins();
-      const cids = new Set(coinsArr.map(c => c.id));
+      // Кастомные монеты несут _id (старый формат мог нести id) — учитываем оба
+      const cids = new Set(coinsArr.map(c => c._id || c.id));
       let newCoins = 0;
       sharedCoins.forEach(c => {
-        if (c && c.id && !cids.has(c.id)) { coinsArr.push(c); newCoins++; }
+        const cid = c && (c._id || c.id);
+        if (cid && !cids.has(cid)) { coinsArr.push(c); newCoins++; }
       });
       const aShared = window.__antiquesImport ? window.__antiquesImport(data) : 0;
       const needApply =
         Object.keys(data.edits || {}).length || newGroups || newCoins || aShared;
+      // версия приложения из общего каталога — для всех посетителей
+      if (data.version && /^\d+\.\d+(\.\d+)?$/.test(String(data.version))) {
+        const nv = String(data.version);
+        if (nv !== getAppVersion()) {
+          try { localStorage.setItem("appVersion", nv); } catch (err) {}
+          const vel = document.getElementById("about-version");
+          if (vel) vel.textContent = nv;
+          if (window.__updateDrawerFoot) window.__updateDrawerFoot();
+        }
+      }
       if (!needApply) return;
       window.__suppressDirty = true;
       try {
@@ -374,6 +386,7 @@ function askAppVersion() {
   localStorage.setItem("appVersion", v);
   const el = document.getElementById("about-version");
   if (el) el.textContent = v;
+  if (window.__updateDrawerFoot) window.__updateDrawerFoot();
   if (typeof toast === "function") toast("Версия приложения: " + v);
 }
 document.getElementById("adm-version").onclick = askAppVersion;
@@ -835,6 +848,7 @@ function ghCatalogBody() {
   return JSON.stringify({
     app: "kopar-catalog-edit",
     ts: new Date().toISOString(),
+    version: getAppVersion(),
     edits: loadCoinEdits(),
     customGroups: loadCustomGroups(),
     customCoins: loadCustomCoins(),
@@ -901,6 +915,7 @@ window.__adminGHToken = function () {
   if (t === null) return;
   const v = t.trim();
   if (v === "") return;
+  if (/^[●\*]+$/.test(v)) return; // заглушка-точки: токен не менялся
   if (v === "-") {
     localStorage.removeItem("ghToken");
     if (typeof toast === "function") toast("Токен удалён с этого устройства");
@@ -931,6 +946,7 @@ document.getElementById("adm-export").onclick = () => {
   const data = {
     app: "kopar-catalog-edit",
     ts: new Date().toISOString(),
+    version: getAppVersion(),
     edits: loadCoinEdits(),
     customGroups: loadCustomGroups(),
     customCoins: loadCustomCoins(),
@@ -947,6 +963,7 @@ document.getElementById("adm-export-gh").onclick = () => {
   const data = {
     app: "kopar-catalog-edit",
     ts: new Date().toISOString(),
+    version: getAppVersion(),
     note: "Положите этот файл в корень репозитория рядом с index.html как catalog.json",
     edits: loadCoinEdits(),
     customGroups: loadCustomGroups(),
